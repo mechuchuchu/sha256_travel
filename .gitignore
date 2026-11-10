@@ -1,0 +1,25 @@
+# Python bytecode and notebook autosaves
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local environments and secrets
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Training checkpoints (the small XOR binary128 model file is intentionally kept)
+*.pt
+*.pth
+*.ckpt
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# This log is still being written by an active run; keep it local until complete.
+/results/adaptive_1000_min1e20.log

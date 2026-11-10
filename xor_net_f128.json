@@ -1,0 +1,26 @@
+{
+  "format": "IEEE-754 binary128",
+  "endianness": "big",
+  "parameter_count": 33,
+  "parameter_bytes": 16,
+  "total_bytes": 528,
+  "layout": [
+    "W1[8][2] row-major",
+    "B1[8]",
+    "W2[1][8] row-major",
+    "B2[1]"
+  ],
+  "architecture": "Linear(2,8) -> ELU(alpha=1) -> Linear(8,1) -> sigmoid*1.0001-0.00005",
+  "training_precision_bits": 128,
+  "optimizer": "manual mpmath Adam",
+  "steps": 20000,
+  "learning_rate": "0.001",
+  "final_mse": "4.318208116522542686507633096160535634925265281e-78",
+  "xor_outputs_00_01_10_11": [
+    "1.4528662478119703391337228319549850449113755813376e-41",
+    "0.99999999999999999999999999999999999999706126412294",
+    "0.99999999999999999999999999999999999999706126412294",
+    "1.6860423122756198997354314346144270891564111684658e-41"
+  ],
+  "weights_file": "xor_net_f128.bin"
+}
