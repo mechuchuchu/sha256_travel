@@ -135,11 +135,52 @@ It used the weights from before the best-checkpoint export fix.
 python -m unittest -v
 ```
 
+## Multiprocess candidate evaluation
+
+`sha256_xor_elu_scaled_sgd_adaptive_128_multiprocess.py` is a separate copy of
+the 128-bit adaptive optimizer with parallel candidate evaluation:
+
+```bash
+python sha256_xor_elu_scaled_sgd_adaptive_128_multiprocess.py \
+  --steps 1 --workers 8 --log results/adaptive_128_multiprocess.log
+```
+
+The parent computes one forward/backward pass per step. Persistent worker
+processes each load the current binary128 weight file once and evaluate the
+candidate forward passes. The process pool is reused across steps. Inputs,
+targets, and losses travel as exact mpmath integer tuples, preserving the
+configured precision without conversion through float64. Results are consumed
+in candidate order, preserving first-candidate ties and exact-state cycle replay.
+
+Omitting `--workers` uses the CPUs available to the process, capped at the
+candidate count. `--workers 1` runs sequentially without creating a process
+pool. Other arguments, including `--precision`, `--weights`, `--rounds`, and
+`--min-lr-exponent`, work as in the original. Memory usage grows with the number
+of workers; the gradient pass remains sequential, so speedup depends on the
+workload and available CPU resources. This version uses the `spawn` start method.
+
+Run the process and precision checks with:
+
+```bash
+python -m unittest -v test_sha256_adaptive_128_multiprocess.py
+```
+
+A 64-round, one-step comparison using three candidates (`--min-lr-exponent -2`)
+produced identical CSV rows: 29.77 seconds sequentially versus 19.05 seconds
+with three workers, including startup (1.56x overall speedup on this machine).
+This is a reduced-grid measurement, not a benchmark of the default 39
+candidates. Commands, timings, and the weight-file hash are recorded in
+`results/adaptive_128_multiprocess_benchmark.json`.
+
 ## Files
 
 - `sha256_xor_elu_scaled_sgd_adaptive.py`: standalone implementation.
 - `sha256_xor_elu_scaled_sgd_adaptive_128.py`: mpmath adaptive sign-SGD counterpart.
+- `sha256_xor_elu_scaled_sgd_adaptive_128_multiprocess.py`: parallel candidate
+  evaluation with a persistent process pool.
 - `test_sha256_adaptive_128.py`: high-precision selection and cycle replay checks.
+- `test_sha256_adaptive_128_multiprocess.py`: spawned-process precision, candidate
+  ordering, worker errors, CLI parity, and sequential cycle replay checks.
 - `train_xor_net_float128.py`: manual 128-bit mpmath XOR training/export.
 - `test_train_xor_net_float128.py`: best-checkpoint export, saved metrics, and
   embedded-weight synchronization checks.

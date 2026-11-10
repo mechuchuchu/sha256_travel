@@ -1,0 +1,48 @@
+{
+  "rounds": 64,
+  "precision_bits": 128,
+  "steps": 1,
+  "candidate_count": 3,
+  "learning_rates": [
+    "0.01",
+    "0.03",
+    "0.1"
+  ],
+  "workers": 3,
+  "seed": 20261110,
+  "weights_sha256": "5466f570277f90cf5640faa210a27dfc668fc51c2b3aa432c7d03eea70ba99f2",
+  "wall_seconds": {
+    "serial": 29.766266264000024,
+    "multiprocess": 19.048393946000033
+  },
+  "speedup": 1.5626654062481018,
+  "csv_rows_exactly_equal": true,
+  "commands": {
+    "serial": [
+      "/home/mechu/.venv/bin/python",
+      "sha256_xor_elu_scaled_sgd_adaptive_128.py",
+      "--steps",
+      "1",
+      "--rounds",
+      "64",
+      "--min-lr-exponent",
+      "-2",
+      "--log",
+      "results/adaptive_128_serial_best_3_candidates.log"
+    ],
+    "multiprocess": [
+      "/home/mechu/.venv/bin/python",
+      "sha256_xor_elu_scaled_sgd_adaptive_128_multiprocess.py",
+      "--steps",
+      "1",
+      "--rounds",
+      "64",
+      "--min-lr-exponent",
+      "-2",
+      "--log",
+      "results/adaptive_128_multiprocess_best_3_candidates.log",
+      "--workers",
+      "3"
+    ]
+  }
+}

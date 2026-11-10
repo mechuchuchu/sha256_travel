@@ -150,4 +150,30 @@ nonzero input gradients at 128-bit precision. The maximum absolute gradient
 was `8.24274748701376e-59`. Forward took 9.97 seconds and backward 0.34 seconds;
 see `results/sha256_mpmath_backward_best_128.json`. A PyTorch float64 run with
 the same message and target also completed with finite outputs and gradients.
-The earlier adaptive optimization logs have not been rerun with the new weights.
+The earlier adaptive optimization logs remain historical; a new reduced-grid
+comparison with the best weights is described below.
+
+## Multiprocess candidate evaluation
+
+`sha256_xor_elu_scaled_sgd_adaptive_128_multiprocess.py` copies the sequential
+128-bit optimizer and distributes candidate forward passes to persistent
+spawned processes. The main process retains gradient calculation and candidate
+selection. Each worker loads the fixed XOR model once; exact mpf tuples preserve
+input, target, and loss precision in transit. Ordered result collection keeps
+the original first-tie behavior. `--workers 1` uses the sequential path.
+
+A full 64-round, one-step comparison at 128-bit precision used seed `20261110`
+and three learning rates (`0.01`, `0.03`, `0.1`). The original script took
+29.77 seconds; the new script with three workers took 19.05 seconds, including
+process startup and shutdown (1.56x overall speedup). The complete output CSV
+rows matched exactly, selecting `0.1` and reducing MSE from approximately
+`0.4765625` to `0.46875`. This measurement uses a reduced candidate grid;
+performance for the default 39 candidates has not been measured here.
+
+See `results/adaptive_128_multiprocess_benchmark.json` for commands, timings,
+and the weight-file hash, and the paired
+`results/adaptive_128_{serial,multiprocess}_best_3_candidates.log` files.
+Five additional regression tests exercise real spawned workers: per-candidate
+and per-step equality at 160 bits across repeated pool use, fractional targets
+and first-candidate ties, worker exception propagation, CLI log parity, and
+cycle replay without a pool when only one worker is requested.
