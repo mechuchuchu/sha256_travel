@@ -29,8 +29,6 @@ INITIAL_W2 = [["0.435043693", "-1.772849202", "0.773968756", "2.499436617",
 INITIAL_B2 = ["-0.171298176"]
 INPUTS = ((0, 0), (0, 1), (1, 0), (1, 1))
 TARGETS = (0, 1, 1, 0)
-SCALE = None
-OFFSET = None
 
 
 def elu(x):
@@ -55,12 +53,13 @@ def forward(pair, params):
     hidden = [elu(value) for value in pre]
     logit = sum((w2[0][j] * hidden[j] for j in range(8)), mp.mpf(0)) + b2[0]
     probability = sigmoid(logit)
-    output = SCALE * probability - OFFSET
+    output = mp.mpf("1.0001") * probability - mp.mpf("0.00005")
     return output, (pre, hidden, probability)
 
 
 def loss_and_gradient(params):
     w1, b1, w2, b2 = params
+    scale = mp.mpf("1.0001")
     gw1 = [[mp.mpf(0), mp.mpf(0)] for _ in range(8)]
     gb1 = [mp.mpf(0) for _ in range(8)]
     gw2 = [[mp.mpf(0) for _ in range(8)]]
@@ -74,7 +73,7 @@ def loss_and_gradient(params):
         loss += error * error / 4
 
         # d/dlogit for mean squared error over the four XOR examples.
-        dlogit = (error / 2) * SCALE * probability * (1 - probability)
+        dlogit = (error / 2) * scale * probability * (1 - probability)
         gb2[0] += dlogit
         for j in range(8):
             gw2[0][j] += dlogit * hidden[j]
@@ -151,8 +150,21 @@ def to_binary128(value):
     return raw.to_bytes(16, "big")
 
 
+def from_binary128(raw):
+    """Decode a finite exported parameter without going through float64."""
+    if len(raw) != 16:
+        raise ValueError("one binary128 parameter requires 16 bytes")
+    word = int.from_bytes(raw, "big")
+    exponent = (word >> 112) & 0x7FFF
+    fraction = word & ((1 << 112) - 1)
+    if exponent == 0x7FFF:
+        raise ValueError("exported parameters must be finite")
+    value = (mp.ldexp(mp.mpf(fraction), -16494) if exponent == 0 else
+             mp.ldexp(mp.mpf((1 << 112) | fraction), exponent - 16495))
+    return -value if word >> 127 else value
+
+
 def main():
-    global SCALE, OFFSET
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--steps", type=int, default=20000)
     parser.add_argument("--precision", type=int, default=128,
@@ -163,10 +175,12 @@ def main():
     parser.add_argument("--history", type=Path,
                         default=HERE / "results" / "xor_net_f128_training.csv")
     args = parser.parse_args()
+    if args.steps < 1:
+        parser.error("--steps must be positive")
+    if args.precision < 113:
+        parser.error("--precision must be at least 113 bits")
 
     mp.prec = args.precision
-    SCALE = mp.mpf("1.0001")
-    OFFSET = mp.mpf("0.00005")
     lr = mp.mpf(args.lr)
     eps = mp.mpf(args.eps)
     beta1, beta2 = mp.mpf("0.9"), mp.mpf("0.999")
@@ -181,6 +195,7 @@ def main():
     second_moment = [mp.mpf(0) for _ in values]
     best_loss = None
     best_values = None
+    best_step = None
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.history.parent.mkdir(parents=True, exist_ok=True)
 
@@ -192,6 +207,7 @@ def main():
             if best_loss is None or loss < best_loss:
                 best_loss = loss
                 best_values = list(values)
+                best_step = step - 1  # number of Adam updates already applied
             grad_values = flatten(gradients)
             first_correction = 1 - beta1 ** step
             second_correction = 1 - beta2 ** step
@@ -209,13 +225,24 @@ def main():
                 history.flush()
                 print(line.strip(), flush=True)
 
-    params = unflatten(best_values)
-    final_loss, _ = loss_and_gradient(params)
-    outputs = [forward(pair, params)[0] for pair in INPUTS]
-    raw = b"".join(to_binary128(value) for value in values)
+    # The loop evaluates before updating, so consider the last update too.
+    last_loss, _ = loss_and_gradient(unflatten(values))
+    if last_loss < best_loss:
+        best_loss, best_values, best_step = last_loss, list(values), args.steps
+    raw = b"".join(to_binary128(value) for value in best_values)
     if len(raw) != 33 * 16:
         raise RuntimeError(f"expected 528 parameter bytes, got {len(raw)}")
     args.output.write_bytes(raw)
+
+    # Report the actual saved model separately from its training checkpoint:
+    # binary128 retains 113 significand bits, less than the training precision.
+    evaluation_precision = max(args.precision, 180)
+    with mp.workprec(evaluation_precision):
+        saved = args.output.read_bytes()
+        params = unflatten([from_binary128(saved[i:i + 16])
+                            for i in range(0, len(saved), 16)])
+        outputs = [forward(pair, params)[0] for pair in INPUTS]
+        exported_loss = mp.fsum((v - t) ** 2 for v, t in zip(outputs, TARGETS)) / 4
 
     metadata = {
         "format": "IEEE-754 binary128",
@@ -229,13 +256,19 @@ def main():
         "optimizer": "manual mpmath Adam",
         "steps": args.steps,
         "learning_rate": args.lr,
-        "final_mse": mp.nstr(final_loss, 50),
+        "checkpoint": "best",
+        "best_step": best_step,
+        "best_step_unit": "completed Adam updates",
+        "best_mse": mp.nstr(best_loss, 50),
+        "evaluation_precision_bits": evaluation_precision,
+        "final_mse": mp.nstr(exported_loss, 50),
         "xor_outputs_00_01_10_11": [mp.nstr(v, 50) for v in outputs],
         "weights_file": args.output.name,
     }
     metadata_path = args.output.with_suffix(".json")
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
-    print(f"final MSE: {mp.nstr(final_loss, 50)}")
+    print(f"best checkpoint: {best_step} Adam updates, MSE: {mp.nstr(best_loss, 50)}")
+    print(f"exported binary128 MSE: {mp.nstr(exported_loss, 50)}")
     print("XOR outputs:", ", ".join(mp.nstr(v, 30) for v in outputs))
     print(f"binary128 weights: {args.output} ({len(raw)} bytes)")
     print(f"metadata: {metadata_path}")

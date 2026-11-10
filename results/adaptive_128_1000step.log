@@ -1,0 +1,7 @@
+optimizer=per-step sign-SGD steps=1000 device=cpu precision_bits=128 rounds=64 seed=20261110
+message=8a1587c509b446a0bf64f8d289d96124cf5af138c3b242a31049af10a2b64e86
+target=71c04588618b36b5f40ddad5e97b909c1711904db2a0d4e106bfa1f8aab80d42
+target_encoding=big-endian bytes; bit_order=LSB-first within each word
+weights=/home/mechu/sha256_travel/xor_net_f128.bin
+learning_rate_candidates=67 min_lr=1.0e-34 max_lr=0.1
+step,base_loss,chosen_lr,post_loss,loss_change,step_delta,total_delta,boundary_bits,grad_max

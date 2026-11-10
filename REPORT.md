@@ -46,11 +46,20 @@ message and a separately generated random 256-bit target.
 
 ## 128-bit XOR network
 
-The 2-8-1 scaled-ELU XOR network was further trained with hand-coded reverse
-mode derivatives and Adam using `mpmath` at 128 binary bits. The trainer tracks
-and exports the best observed checkpoint rather than the final Adam iterate.
-After 20,000 steps, the best MSE was `4.3182081165225427e-78`; the four outputs
-for inputs `00, 01, 10, 11` were approximately `1.45e-41, 1, 1, 1.69e-41`.
+The 2-8-1 scaled-ELU XOR network was retrained for 20,000 Adam updates using
+hand-coded reverse-mode derivatives and `mpmath` at 128 binary bits after
+fixing best-checkpoint export. The best checkpoint occurred after 10,860
+updates, with training-precision MSE `4.3182081165225427e-78`. The trainer now
+includes the final update in its checkpoint comparison and serializes
+`best_values`, rather than the final iterate.
+
+Reloading the saved binary128 weights and evaluating them at 180-bit precision
+gives XOR MSE `1.3511927935800097e-76`, versus `2.4918012890942453e-24` for the
+previous file. The saved model's outputs for `00` and `11` are approximately
+`9.81e-39` and `1.83e-38`; the other two outputs are close to one. Export rounding
+and evaluation precision account for the difference from the training MSE.
+Metadata records `best_mse` separately from the saved-model `final_mse` and
+outputs, along with the precision used to evaluate the exported model.
 
 Its 33 parameters are stored in
 `xor_net_f128.bin` as 528 bytes of big-endian IEEE-754 binary128 data, with the
@@ -60,15 +69,13 @@ float128 tensor dtype, so the SHA experiment decodes those bytes to float64
 when it creates model tensors. The XOR weights are preserved in binary128;
 the SHA forward pass and input optimization still run in float64.
 
-## Current run status
+## Historical float64 run status
 
-The 1000-step run with the `1e-20` minimum is still running. Its live log is
-`results/adaptive_1000_min1e20.log`; it is flushed as each step completes. The
-last check was at step 136. This run began before the binary128 XOR weights
+At the earlier check, the 1000-step run with the `1e-20` minimum had reached
+step 136. Its log was `results/adaptive_1000_min1e20.log`, which is not present
+in this checkout. This run began before the binary128 XOR weights
 were trained, so it uses the earlier rounded weights from the original
 project module. It does not measure the newly embedded binary128 checkpoint.
-The adaptive-run summary reflects the live log and will be updated when the
-run finishes.
 
 ## Interpretation and limits
 
@@ -104,11 +111,10 @@ the development CPU. The complete values are saved in
 `results/sha256_mpmath_backward_128.json`. This is a forward/backward smoke test,
 not a preimage optimization result; its target is the known hash of its input.
 
-The implementation uses the existing weight file as-is. The historical training
-metadata reports the best checkpoint, while the current trainer's export code
-serializes the final iterate; that metadata is not used by this implementation.
-The mpmath precision setting also does not add precision to the stored 113-bit
-significands of the binary128 weights.
+The above smoke-test artifact used the old, final-iterate weights and is kept
+as a historical result. The corrected trainer now exports the best checkpoint,
+and the mpmath implementation loads that new binary file on startup. Its
+precision setting does not add precision to the stored 113-bit significands.
 
 ## 128-bit adaptive sign-SGD
 
@@ -124,7 +130,24 @@ on the development CPU. It selected `0.1`, reducing loss from approximately
 `0.4765624999995988337324511136148584169672614` to
 `0.4687499999994853675690903454916395072318703`. The maximum input gradient was
 approximately `1.2055136769e-20`. See `results/adaptive_128_1_step.log`.
-This run uses the current binary128 file and is separate from the older
-float64 results that used the previous rounded weights. Eleven tests passed,
+This historical run used the binary128 file from before the best-checkpoint
+export fix and is separate from the older float64 results that used the
+previous rounded weights. Eleven tests passed at the time,
 covering the engine's derivatives and SHA wiring, seeded input compatibility,
 sub-float64 updates, candidate ties, clipping, and two-state cycle replay.
+
+## Verification after best-checkpoint export
+
+All 14 tests passed after retraining and synchronizing the embedded PyTorch
+weights. The three export regressions cover an earlier checkpoint beating the
+final iterate, an improving final update, and equality of the embedded bytes
+with the binary file. Exported metadata is also checked through the consuming
+mpmath engine's independent decoder and XOR evaluator.
+
+A new 64-round mpmath forward/backward run for `abc`, using its known SHA-256
+digest as the target, produced MSE `1.6032554778113813e-76` and 512 finite,
+nonzero input gradients at 128-bit precision. The maximum absolute gradient
+was `8.24274748701376e-59`. Forward took 9.97 seconds and backward 0.34 seconds;
+see `results/sha256_mpmath_backward_best_128.json`. A PyTorch float64 run with
+the same message and target also completed with finite outputs and gradients.
+The earlier adaptive optimization logs have not been rerun with the new weights.

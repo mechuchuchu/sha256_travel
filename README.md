@@ -24,8 +24,17 @@ To retrain and export the XOR model with mpmath 128-bit backpropagation:
 python train_xor_net_float128.py --steps 20000 --precision 128
 ```
 
-The trainer writes `xor_net_f128.bin` and its JSON metadata. Its 528 parameter
-bytes are also embedded in the standalone SHA script. PyTorch evaluates that
+The trainer writes the best observed checkpoint (including the final Adam
+update) to `xor_net_f128.bin` and its JSON metadata. `best_step` counts completed
+Adam updates, and `best_mse` is measured at training precision before export.
+`final_mse` and `xor_outputs_00_01_10_11` describe the saved binary128 weights,
+reloaded and evaluated at `evaluation_precision_bits` (at least 180 bits).
+Binary128 rounding can make this MSE differ from `best_mse`.
+
+The current 528 parameter bytes are also embedded in the standalone SHA script.
+After retraining, that script's `_XOR_NET_F128_HEX` must be synchronized with the
+new binary file; the export tests check this. The mpmath scripts load the binary
+file directly on startup. PyTorch evaluates the standalone
 script in float64, so the embedded binary128 weights are rounded to float64
 when loaded into tensors. The high-precision trainer itself only requires
 mpmath.
@@ -76,8 +85,11 @@ print(result.loss, result.gradient[0])
 Supply decimal strings or mpmath values for fractional inputs. Bit arrays store
 big-endian 32-bit words with the least-significant bit first within each word.
 Weights remain fixed: backward computes input gradients, not weight gradients.
-The saved file `results/sha256_mpmath_backward_128.json` records a full run for
-`abc` with its standard SHA-256 digest as the target.
+The saved file `results/sha256_mpmath_backward_128.json` records a historical run
+for `abc` with its standard SHA-256 digest as the target, using the weights from
+before the best-checkpoint export fix.
+The corresponding run with the corrected best weights is saved in
+`results/sha256_mpmath_backward_best_128.json` (MSE approximately `1.60e-76`).
 
 Run numerical derivative and SHA structure checks with:
 
@@ -114,12 +126,13 @@ To extend the learning-rate grid below `1e-20`, use e.g.
 `--min-lr-exponent -40` (79 candidates). This optimizer remains a continuous
 SHA-256 surrogate, and padding bits are optimized along with the message bits.
 
-The full 64-round, 39-candidate smoke test completed in 412.4 seconds on the
+The historical full 64-round, 39-candidate smoke test completed in 412.4 seconds on the
 development CPU. It selected learning rate `0.1`, reducing MSE from approximately
 `0.4765625` to `0.46875`; the log is `results/adaptive_128_1_step.log`.
+It used the weights from before the best-checkpoint export fix.
 
 ```bash
-python -m unittest -v test_sha256_adaptive_128.py test_sha256_mpmath_backward.py
+python -m unittest -v
 ```
 
 ## Files
@@ -128,6 +141,8 @@ python -m unittest -v test_sha256_adaptive_128.py test_sha256_mpmath_backward.py
 - `sha256_xor_elu_scaled_sgd_adaptive_128.py`: mpmath adaptive sign-SGD counterpart.
 - `test_sha256_adaptive_128.py`: high-precision selection and cycle replay checks.
 - `train_xor_net_float128.py`: manual 128-bit mpmath XOR training/export.
+- `test_train_xor_net_float128.py`: best-checkpoint export, saved metrics, and
+  embedded-weight synchronization checks.
 - `sha256_mpmath_backward.py`: mpmath SHA surrogate and reverse-mode input gradients.
 - `test_sha256_mpmath_backward.py`: finite-difference and SHA structure checks.
 - `xor_net_f128.bin` and `xor_net_f128.json`: 33 big-endian IEEE-754
