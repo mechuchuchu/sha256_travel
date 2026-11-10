@@ -30,10 +30,106 @@ script in float64, so the embedded binary128 weights are rounded to float64
 when loaded into tensors. The high-precision trainer itself only requires
 mpmath.
 
+## mpmath 128-bit forward/backward
+
+The CPU implementation below requires only `mpmath`. It runs all 64 rounds of
+the same learned-XOR relaxation and computes MSE derivatives for all 512 input
+values, including padding. Model values, local derivatives, gradient accumulation,
+and updates use 128 binary significand bits throughout; no float64 conversion is
+used. The binary128 weight file contains 113 significand bits per parameter.
+
+```bash
+python sha256_mpmath_backward.py
+```
+
+This performs one forward/backward evaluation and writes the input, 256 output
+values, 512 gradients, loss, and timings to `results/sha256_mpmath_backward.json`.
+Numeric model data is saved as decimal strings to preserve precision. A measured
+64-round run took approximately 13 seconds forward and 0.5 seconds backward on
+the development CPU; timings depend on the machine and input.
+
+For repeated evaluations with a projected sign-SGD update between them:
+
+```bash
+python sha256_mpmath_backward.py --steps 2 --lr 1e-20
+```
+
+This uses a fixed learning rate, without the PyTorch script's candidate search.
+`--precision` changes the arithmetic precision (minimum 113); `--message-hex`
+accepts up to 55 message bytes and `--target-hex` accepts exactly 32 target bytes.
+`--weights` selects a binary128 file. The default seed is `20261110`, but this
+script uses Python's `random.Random`, so its default samples differ from the
+NumPy-based script. `--rounds` can reduce the rounds for debugging.
+
+The Python API returns mpmath values directly:
+
+```python
+from sha256_mpmath_backward import SHA256MP, bytes_to_bits, pad_message
+
+model = SHA256MP(precision=128)
+x = bytes_to_bits(pad_message(b"abc"))
+target = bytes_to_bits(bytes(32))
+result = model.evaluate(x, target)
+print(result.loss, result.gradient[0])
+```
+
+Supply decimal strings or mpmath values for fractional inputs. Bit arrays store
+big-endian 32-bit words with the least-significant bit first within each word.
+Weights remain fixed: backward computes input gradients, not weight gradients.
+The saved file `results/sha256_mpmath_backward_128.json` records a full run for
+`abc` with its standard SHA-256 digest as the target.
+
+Run numerical derivative and SHA structure checks with:
+
+```bash
+python -m unittest -v test_sha256_mpmath_backward.py
+```
+
+## mpmath 128-bit adaptive sign-SGD
+
+`sha256_xor_elu_scaled_sgd_adaptive_128.py` ports the original adaptive optimizer
+to the mpmath engine. It uses the same 39 learning rates (`1e-20` through `1e-1`),
+gradient signs, `[0, 1]` projection, first-candidate tie breaking, and exact-state
+cycle replay. The smallest candidate loss is accepted even if it exceeds the
+base loss, matching the original algorithm. Precision defaults to 128 binary
+significand bits for the full computation, including learning rates and updates.
+
+```bash
+python sha256_xor_elu_scaled_sgd_adaptive_128.py \
+  --steps 1 --device cpu --log results/adaptive_128.log
+```
+
+This requires `mpmath` and NumPy, plus `sha256_mpmath_backward.py` and the weight
+file in this directory. NumPy is used only to generate exactly the same message
+and target bytes as the original adaptive script for a given seed. The new log
+prints target bytes in big-endian order; the old script prints native-endian
+target words. The underlying target bits agree.
+
+`--steps` defaults to 1000 as in the original, but CPU evaluation of all 39
+candidates takes several minutes per step. Candidate progress is printed during
+the search; each completed step is flushed to the log using the original CSV
+columns, with enough digits to preserve mpmath precision. `--device auto` also
+selects CPU. `--precision`, `--weights`, and diagnostic `--rounds` are supported.
+To extend the learning-rate grid below `1e-20`, use e.g.
+`--min-lr-exponent -40` (79 candidates). This optimizer remains a continuous
+SHA-256 surrogate, and padding bits are optimized along with the message bits.
+
+The full 64-round, 39-candidate smoke test completed in 412.4 seconds on the
+development CPU. It selected learning rate `0.1`, reducing MSE from approximately
+`0.4765625` to `0.46875`; the log is `results/adaptive_128_1_step.log`.
+
+```bash
+python -m unittest -v test_sha256_adaptive_128.py test_sha256_mpmath_backward.py
+```
+
 ## Files
 
 - `sha256_xor_elu_scaled_sgd_adaptive.py`: standalone implementation.
+- `sha256_xor_elu_scaled_sgd_adaptive_128.py`: mpmath adaptive sign-SGD counterpart.
+- `test_sha256_adaptive_128.py`: high-precision selection and cycle replay checks.
 - `train_xor_net_float128.py`: manual 128-bit mpmath XOR training/export.
+- `sha256_mpmath_backward.py`: mpmath SHA surrogate and reverse-mode input gradients.
+- `test_sha256_mpmath_backward.py`: finite-difference and SHA structure checks.
 - `xor_net_f128.bin` and `xor_net_f128.json`: 33 big-endian IEEE-754
   binary128 parameters (528 bytes) and their layout metadata.
 - `REPORT.md`: experiment design and current findings.

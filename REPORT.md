@@ -84,3 +84,47 @@ changes reliably.
 This experiment evaluates MSE only. It does not measure hash correctness or
 cryptographic security, and the learned XOR relaxation is not a substitute
 for standard SHA-256.
+
+## mpmath forward/backward implementation
+
+`sha256_mpmath_backward.py` now evaluates the learned-XOR surrogate with an
+isolated mpmath context at 128 significand bits. It reads the actual binary128
+weight bytes directly and keeps forward values, local Jacobians, accumulated
+input gradients, and optional sign-SGD updates in that context. It does not
+depend on PyTorch or NumPy. XOR network derivatives and carry/choose/majority
+derivatives are recorded on a scalar reverse-mode tape; rotations and shifts
+reuse node references.
+
+A full 64-round evaluation for the message `abc`, targeting
+`ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad`, completed with
+75,946 tape nodes and 512 finite, nonzero input gradients. MSE was approximately
+`2.5265156864e-24`, and the maximum absolute input gradient was approximately
+`3.9973822229e-32`. Forward took 12.93 seconds and backward took 0.52 seconds on
+the development CPU. The complete values are saved in
+`results/sha256_mpmath_backward_128.json`. This is a forward/backward smoke test,
+not a preimage optimization result; its target is the known hash of its input.
+
+The implementation uses the existing weight file as-is. The historical training
+metadata reports the best checkpoint, while the current trainer's export code
+serializes the final iterate; that metadata is not used by this implementation.
+The mpmath precision setting also does not add precision to the stored 113-bit
+significands of the binary128 weights.
+
+## 128-bit adaptive sign-SGD
+
+`sha256_xor_elu_scaled_sgd_adaptive_128.py` applies the original adaptive update
+rule through the mpmath engine. It preserves the NumPy-seeded input and target,
+the 39-candidate grid from `1e-20` to `1e-1`, projection to `[0, 1]`, and cycle
+replay. Learning rates, candidate comparisons, state comparisons, and logged
+model values retain the configured mpmath precision. Target bytes in the new
+log use big-endian order; the old log serialized native-endian words.
+
+A complete 128-bit step with seed `20261110` and all 64 rounds took 412.4 seconds
+on the development CPU. It selected `0.1`, reducing loss from approximately
+`0.4765624999995988337324511136148584169672614` to
+`0.4687499999994853675690903454916395072318703`. The maximum input gradient was
+approximately `1.2055136769e-20`. See `results/adaptive_128_1_step.log`.
+This run uses the current binary128 file and is separate from the older
+float64 results that used the previous rounded weights. Eleven tests passed,
+covering the engine's derivatives and SHA wiring, seeded input compatibility,
+sub-float64 updates, candidate ties, clipping, and two-state cycle replay.
