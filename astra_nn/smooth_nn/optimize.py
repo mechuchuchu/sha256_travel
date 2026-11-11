@@ -114,7 +114,7 @@ def main() -> None:
     x = torch.nn.Parameter(initial.unsqueeze(0))
     optimizer = torch.optim.Adam([x], lr=args.lr)
 
-    report_every = max(1, args.steps // 10)
+    report_every = 1
     history = []
     best_mse = float("inf")
     best_input = x.detach().clone()
