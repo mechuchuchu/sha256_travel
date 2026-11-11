@@ -135,6 +135,7 @@ def main() -> None:
         loss.backward()
         grad_norm = x.grad.norm().item()
         delta_from_init = torch.linalg.vector_norm(x.detach()[0] - initial).item()
+        bit_matches = int(((prediction >= 0.5) == target.bool()).sum().item())
         if output_loss.item() < best_mse:
             best_mse = output_loss.item()
             best_input.copy_(x.detach())
@@ -152,12 +153,14 @@ def main() -> None:
                 "binary_penalty": binary_loss.item(),
                 "gradient_norm": grad_norm,
                 "delta_from_init": delta_from_init,
+                "bit_matches": bit_matches,
             }
             history.append(row)
             print(
                 f"step {step:4d}/{args.steps}: mse={output_loss.item():.6e} "
                 f"binary={binary_loss.item():.6e} |grad|={grad_norm:.6e} "
-                f"delta_from_init={delta_from_init:.6e}",
+                f"delta_from_init={delta_from_init:.6e} "
+                f"bit_match={bit_matches}/256",
                 flush=True,
             )
 
