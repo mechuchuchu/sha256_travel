@@ -178,6 +178,36 @@ uv run python sha256_nn_mpmath_hessian.py \
   --output fractional_mpmath_hessian_113.json
 ```
 
+한 가중치의 오차에 따라 입력 gradient가 변하는 양은 다음으로 측정합니다.
+이 실험은 `abc`의 올바른 패딩 블록과 digest를 고정하고,
+`xor_and.weight_in[0][0]`의 값 1에 `10⁻¹`부터 `10⁻³⁴`까지 더합니다.
+기준점의 MSE와 입력 gradient가 모두 0인지 검사한 뒤 각 perturbation의 MSE,
+gradient 최댓값과 L2 norm을 저장합니다.
+
+```bash
+uv run python sha256_nn_mpmath_weight_sweep.py \
+  --precision 113 --output weight_perturbation_113.json
+```
+
+IEEE binary256과 같은 237비트 유효숫자로도 실행할 수 있습니다. mpmath는
+지수 범위와 특수값 처리를 IEEE binary256과 똑같이 모사하지는 않습니다.
+아래 명령은 `10⁻¹`부터 `10⁻⁶⁸`까지 가중치 실험을 실행합니다.
+결과는 선택한 정밀도를 보존할 수 있는 십진 자릿수로 저장됩니다.
+
+```bash
+uv run python sha256_nn_mpmath_weight_sweep.py --float256 \
+  --end-exponent 68 --output weight_perturbation_237_1_68.json
+
+# 순전파·역전파, 입력 최적화, Hessian에도 같은 정밀도를 사용할 수 있음
+uv run python sha256_nn_mpmath.py --precision 237 --output fractional_mpmath_237.json
+uv run python train_sha256_nn_mpmath.py --precision 237 --output training_237.json
+uv run python sha256_nn_mpmath_hessian.py --precision 237 --output hessian_237.json
+```
+
+유효숫자 자체를 256비트로 원하면 `--precision 256`을 사용합니다.
+입력 가중치 1 부근의 237비트 간격은 약 `9.06×10⁻⁷²`입니다. 요청한 변화량과
+실제로 표현된 변화량이 다를 수 있어 결과 파일에 두 값을 모두 기록합니다.
+
 `--mode message`는 64바이트 원본 메시지에 패딩 블록을 추가해 두 블록을
 계산합니다. `--mode compression`은 제공된 512개 값을 한 블록으로 계산하며,
 이 모드의 `--message-hex` 편의 옵션만 0..55바이트 메시지를 먼저 패딩합니다.

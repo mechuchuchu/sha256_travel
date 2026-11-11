@@ -22,8 +22,10 @@ def main():
     parser.add_argument("--input-json", type=Path,
                         default=Path("fractional_mpmath_train_113_linesearch.json"))
     parser.add_argument("--target-hex", default=DEFAULT_TARGET)
-    parser.add_argument("--output", type=Path, default=Path("fractional_mpmath_hessian_113.json"))
+    parser.add_argument("--output", type=Path, help="defaults to fractional_mpmath_hessian_<precision>.json")
     args = parser.parse_args()
+    if args.output is None:
+        args.output = Path(f"fractional_mpmath_hessian_{args.precision}.json")
     try:
         model = FractionalSHA256MP(args.mode, args.precision, args.weights)
         ctx = model.ctx
@@ -53,6 +55,7 @@ def main():
             print(f"Jacobian rows {row}/{len(output_nodes)}; "
                   f"elapsed {time.perf_counter()-jacobian_start:.1f}s", flush=True)
         del adjoints
+    jacobian_seconds = time.perf_counter() - jacobian_start
 
     factor = ctx.mpf(2) / 256
     gradient = [factor * ctx.fsum(residual[k] * jacobian[k][i] for k in range(256))
@@ -67,6 +70,7 @@ def main():
         if (i + 1) % 32 == 0 or i == 511:
             print(f"Hessian rows {i+1}/512; elapsed {time.perf_counter()-gram_start:.1f}s",
                   flush=True)
+    gram_seconds = time.perf_counter() - gram_start
 
     digits = (args.precision * 30103 + 99999) // 100000 + 3
     encode = lambda value: ctx.nstr(value, digits)
@@ -93,8 +97,8 @@ def main():
         "max_abs_entry": encode(max(abs(value) for row in hessian for value in row)),
         "jacobian_rows": len(jacobian),
         "computation_graph_nodes": len(tape.values),
-        "jacobian_seconds": time.perf_counter() - jacobian_start,
-        "gram_seconds": time.perf_counter() - gram_start,
+        "jacobian_seconds": jacobian_seconds,
+        "gram_seconds": gram_seconds,
         "total_seconds": time.perf_counter() - started,
         "hessian": [[encode(value) for value in row] for row in hessian],
     }

@@ -43,8 +43,10 @@ def main():
     parser.add_argument("--beta1", default="0.9")
     parser.add_argument("--beta2", default="0.999")
     parser.add_argument("--epsilon", default="1e-30")
-    parser.add_argument("--output", type=Path, default=Path("fractional_mpmath_train.json"))
+    parser.add_argument("--output", type=Path, help="defaults to fractional_mpmath_train_<precision>.json")
     args = parser.parse_args()
+    if args.output is None:
+        args.output = Path(f"fractional_mpmath_train_{args.precision}.json")
     if args.steps < 1 or args.backtracks < 0:
         parser.error("steps must be positive and backtracks nonnegative")
     try:
@@ -63,6 +65,9 @@ def main():
 
     first_moment = [ctx.zero] * 512
     second_moment = [ctx.zero] * 512
+    digits = (args.precision * 30103 + 99999) // 100000 + 3
+    def encode(value):
+        return ctx.nstr(value, digits)
     history = []
     best_loss = None
     best_input = None
@@ -109,8 +114,8 @@ def main():
                 residual = [y - ctx.mpf(t) for y, t in zip(candidate_output, target)]
                 candidate_loss = ctx.fsum(value*value for value in residual) / 256
                 line_search_trials.append({
-                    "learning_rate": ctx.nstr(trial_lr, 12),
-                    "loss": ctx.nstr(candidate_loss, 40),
+                    "learning_rate": encode(trial_lr),
+                    "loss": encode(candidate_loss),
                 })
                 if candidate_loss < result.loss:
                     x = candidate
@@ -124,12 +129,12 @@ def main():
                 trial_lr /= 10
         row = {
             "step": step,
-            "loss_before": ctx.nstr(result.loss, 40),
-            "gradient_max_abs": ctx.nstr(grad_max, 12),
+            "loss_before": encode(result.loss),
+            "gradient_max_abs": encode(grad_max),
             "nonzero_gradients": sum(g != 0 for g in result.gradient),
             "accepted": accepted,
-            "learning_rate_used": ctx.nstr(lr_used, 12) if lr_used is not None else None,
-            "loss_after": ctx.nstr(loss_after, 40) if loss_after is not None else None,
+            "learning_rate_used": encode(lr_used) if lr_used is not None else None,
+            "loss_after": encode(loss_after) if loss_after is not None else None,
             "backtracks": retries,
             "line_search_trials": line_search_trials,
             "forward_seconds": result.forward_seconds,
@@ -159,7 +164,6 @@ def main():
                                   for i in range(0, 512, 8))
     import hashlib
     actual_digest = hashlib.sha256(threshold_message).hexdigest() if args.mode == "message" else None
-    digits = (args.precision * 30103 + 99999) // 100000 + 3
     payload = {
         "model": "FractionalSHA256MP", "optimizer": args.optimizer,
         "precision_bits": args.precision, "precision_kind": "mpmath significand bits",
@@ -167,13 +171,13 @@ def main():
         "beta1": args.beta1, "beta2": args.beta2, "epsilon": args.epsilon,
         "seed": args.seed, "input_source": str(args.input_json) if args.input_json else "random dyadic",
         "target_hex": target_bytes.hex(), "initial_loss": history[0]["loss_before"],
-        "final_loss": ctx.nstr(final_loss, 40), "best_loss": ctx.nstr(best_loss, 40),
+        "final_loss": encode(final_loss), "best_loss": encode(best_loss),
         "history": history,
         "threshold_rule": "input >= 0.5 becomes 1",
         "thresholded_message_hex": threshold_message.hex(),
         "thresholded_message_sha256": actual_digest,
-        "input": [ctx.nstr(value, digits) for value in best_input],
-        "output": [ctx.nstr(value, digits) for value in best_output],
+        "input": [encode(value) for value in best_input],
+        "output": [encode(value) for value in best_output],
         "elapsed_seconds": time.perf_counter() - started,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

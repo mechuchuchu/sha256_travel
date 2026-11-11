@@ -66,7 +66,8 @@ class _Gate:
                     value += h * weight
             parents = ()
             if tape.recording:
-                # Within a ReLU region all local derivatives are exact integers.
+                # Local derivatives are constant within a ReLU region. They are
+                # integers for the original weights but may be mpf when perturbed.
                 # Keep repeated parent IDs: their adjoints must be accumulated.
                 derivatives = [sum(wo * wi[i] for wo, wi, on in
                                    zip(row, self.w_in, active) if on)
