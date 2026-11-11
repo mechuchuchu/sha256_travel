@@ -49,7 +49,7 @@ def main() -> None:
     initial = torch.rand(512, dtype=torch.float64)
     latent = torch.nn.Parameter(torch.logit(initial.clamp(1e-8, 1 - 1e-8)))
     optimizer = torch.optim.LBFGS(
-        [latent], lr=args.lr, max_iter=1, history_size=args.history_size,
+        [latent], lr=args.lr, max_iter=10, history_size=args.history_size,
         line_search_fn="strong_wolfe", tolerance_grad=0.0, tolerance_change=0.0,
     )
 
