@@ -1,0 +1,134 @@
+{
+  "target_message": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+  "target_digest": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108",
+  "training": {
+    "width": 128,
+    "depth": 3,
+    "steps": 1000,
+    "smoothness_weight": 0.01,
+    "learning_rate": 0.002,
+    "gate_metrics": {
+      "xor_and": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.003978735799963397,
+        "selected_path_mse": 0.0031736319067736615,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.01
+      },
+      "xor3": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.012571803078303015,
+        "selected_path_mse": 0.008857449623068484,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.01
+      },
+      "choose": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.004532007249701537,
+        "selected_path_mse": 0.0014620955888624628,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.01
+      },
+      "majority": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.003049556235735368,
+        "selected_path_mse": 0.002413580536601221,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.01
+      },
+      "prefix": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.0014156574763378425,
+        "selected_path_mse": 0.00013019707351317775,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.01
+      }
+    }
+  },
+  "gradient_inputs_seed": 82631,
+  "baseline": {
+    "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates.pt",
+    "samples": [
+      {
+        "sample": 0,
+        "output_mse": 0.3332156703045853,
+        "gradient_l2_norm": 7006999091523.149,
+        "gradient_rms": 309668535836.4999,
+        "gradient_max_abs": 2710216089606.596,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 1,
+        "output_mse": 0.3437782520370282,
+        "gradient_l2_norm": 623034296399.9366,
+        "gradient_rms": 27534485993.51154,
+        "gradient_max_abs": 326704831871.1353,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 2,
+        "output_mse": 0.3288927571977196,
+        "gradient_l2_norm": 23602886079694.71,
+        "gradient_rms": 1043110050157.8563,
+        "gradient_max_abs": 12131403114960.842,
+        "gradient_finite_fraction": 1.0
+      }
+    ],
+    "summary": {
+      "median_gradient_l2_norm": 7006999091523.149,
+      "gradient_l2_coefficient_of_variation": 0.9303009896442188,
+      "gradient_l2_max_min_ratio": 37.883766938800434,
+      "max_gradient_l2_norm": 23602886079694.71,
+      "median_output_mse": 0.3332156703045853,
+      "all_gradients_finite": true
+    }
+  },
+  "larger_smoother": {
+    "checkpoint": "smooth_nn/smooth_gates_stability_0p01.pt",
+    "samples": [
+      {
+        "sample": 0,
+        "output_mse": 0.321461892963992,
+        "gradient_l2_norm": 2.968443566891581e-05,
+        "gradient_rms": 1.3118791098241372e-06,
+        "gradient_max_abs": 1.0151386104257339e-05,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 1,
+        "output_mse": 0.3214606808948053,
+        "gradient_l2_norm": 1.6055090953228142e-05,
+        "gradient_rms": 7.095414803496505e-07,
+        "gradient_max_abs": 7.026566392234417e-06,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 2,
+        "output_mse": 0.3214614782476593,
+        "gradient_l2_norm": 2.5920262753822317e-05,
+        "gradient_rms": 1.1455245977103033e-06,
+        "gradient_max_abs": 1.7181646799850238e-05,
+        "gradient_finite_fraction": 1.0
+      }
+    ],
+    "summary": {
+      "median_gradient_l2_norm": 2.5920262753822317e-05,
+      "gradient_l2_coefficient_of_variation": 0.24059419714661062,
+      "gradient_l2_max_min_ratio": 1.8489110871681023,
+      "max_gradient_l2_norm": 2.968443566891581e-05,
+      "median_output_mse": 0.3214614782476593,
+      "all_gradients_finite": true
+    }
+  },
+  "median_gradient_norm_ratio_new_over_baseline": 3.699195963244786e-18
+}

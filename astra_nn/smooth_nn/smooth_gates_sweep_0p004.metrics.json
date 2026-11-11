@@ -1,0 +1,47 @@
+{
+  "xor_and": {
+    "binary_vertex_max_error": 0.0,
+    "fractional_random_mse": 0.00295719890378946,
+    "selected_path_mse": 0.0019796920657984074,
+    "steps": 1000,
+    "width": 128,
+    "depth": 3,
+    "smoothness_weight": 0.004
+  },
+  "xor3": {
+    "binary_vertex_max_error": 0.0,
+    "fractional_random_mse": 0.007572709463208336,
+    "selected_path_mse": 0.004569349448953049,
+    "steps": 1000,
+    "width": 128,
+    "depth": 3,
+    "smoothness_weight": 0.004
+  },
+  "choose": {
+    "binary_vertex_max_error": 0.0,
+    "fractional_random_mse": 0.002787187206465384,
+    "selected_path_mse": 0.00048406711191619937,
+    "steps": 1000,
+    "width": 128,
+    "depth": 3,
+    "smoothness_weight": 0.004
+  },
+  "majority": {
+    "binary_vertex_max_error": 0.0,
+    "fractional_random_mse": 0.002002133406314532,
+    "selected_path_mse": 0.0012643303657836247,
+    "steps": 1000,
+    "width": 128,
+    "depth": 3,
+    "smoothness_weight": 0.004
+  },
+  "prefix": {
+    "binary_vertex_max_error": 0.0,
+    "fractional_random_mse": 0.0008205780305932845,
+    "selected_path_mse": 7.483807841067443e-05,
+    "steps": 1000,
+    "width": 128,
+    "depth": 3,
+    "smoothness_weight": 0.004
+  }
+}

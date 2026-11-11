@@ -1,0 +1,134 @@
+{
+  "target_message": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+  "target_digest": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108",
+  "training": {
+    "width": 128,
+    "depth": 3,
+    "steps": 1000,
+    "smoothness_weight": 0.1,
+    "learning_rate": 0.002,
+    "gate_metrics": {
+      "xor_and": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.014031236333502341,
+        "selected_path_mse": 0.015238795098291928,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.1
+      },
+      "xor3": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.030221481662095494,
+        "selected_path_mse": 0.02926941898657933,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.1
+      },
+      "choose": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.008930097348113113,
+        "selected_path_mse": 0.010173592629973742,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.1
+      },
+      "majority": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.010306461287206836,
+        "selected_path_mse": 0.00995006915189749,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.1
+      },
+      "prefix": {
+        "binary_vertex_max_error": 0.0,
+        "fractional_random_mse": 0.0055217543968427985,
+        "selected_path_mse": 0.0012962134146603816,
+        "steps": 1000,
+        "width": 128,
+        "depth": 3,
+        "smoothness_weight": 0.1
+      }
+    }
+  },
+  "gradient_inputs_seed": 82631,
+  "baseline": {
+    "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates.pt",
+    "samples": [
+      {
+        "sample": 0,
+        "output_mse": 0.3332156703045853,
+        "gradient_l2_norm": 7006999091523.149,
+        "gradient_rms": 309668535836.4999,
+        "gradient_max_abs": 2710216089606.596,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 1,
+        "output_mse": 0.3437782520370282,
+        "gradient_l2_norm": 623034296399.9366,
+        "gradient_rms": 27534485993.51154,
+        "gradient_max_abs": 326704831871.1353,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 2,
+        "output_mse": 0.3288927571977196,
+        "gradient_l2_norm": 23602886079694.71,
+        "gradient_rms": 1043110050157.8563,
+        "gradient_max_abs": 12131403114960.842,
+        "gradient_finite_fraction": 1.0
+      }
+    ],
+    "summary": {
+      "median_gradient_l2_norm": 7006999091523.149,
+      "gradient_l2_coefficient_of_variation": 0.9303009896442188,
+      "gradient_l2_max_min_ratio": 37.883766938800434,
+      "max_gradient_l2_norm": 23602886079694.71,
+      "median_output_mse": 0.3332156703045853,
+      "all_gradients_finite": true
+    }
+  },
+  "larger_smoother": {
+    "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates_stability.pt",
+    "samples": [
+      {
+        "sample": 0,
+        "output_mse": 0.26485108198078117,
+        "gradient_l2_norm": 8.935262550968262e-09,
+        "gradient_rms": 3.948865463419917e-10,
+        "gradient_max_abs": 6.140549506698004e-09,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 1,
+        "output_mse": 0.26485108194185886,
+        "gradient_l2_norm": 5.202121912118375e-09,
+        "gradient_rms": 2.29903480038627e-10,
+        "gradient_max_abs": 2.5745220902347654e-09,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 2,
+        "output_mse": 0.2648510817926736,
+        "gradient_l2_norm": 4.6582241725314864e-09,
+        "gradient_rms": 2.0586636879275677e-10,
+        "gradient_max_abs": 3.27559567275033e-09,
+        "gradient_finite_fraction": 1.0
+      }
+    ],
+    "summary": {
+      "median_gradient_l2_norm": 5.202121912118375e-09,
+      "gradient_l2_coefficient_of_variation": 0.30342665892581283,
+      "gradient_l2_max_min_ratio": 1.9181692894166666,
+      "max_gradient_l2_norm": 8.935262550968262e-09,
+      "median_output_mse": 0.26485108194185886,
+      "all_gradients_finite": true
+    }
+  },
+  "median_gradient_norm_ratio_new_over_baseline": 7.424179515609957e-22
+}

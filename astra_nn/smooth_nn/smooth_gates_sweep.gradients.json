@@ -1,0 +1,574 @@
+{
+  "target_message": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+  "target_digest": "fdeab9acf3710362bd2658cdc9a29e8f9c757fcf9811603a8c447cd1d9151108",
+  "training": {
+    "width": 128,
+    "depth": 3,
+    "steps": 1000,
+    "learning_rate": 0.002,
+    "weights": [
+      0.004,
+      0.005,
+      0.006,
+      0.007,
+      0.008,
+      0.009
+    ]
+  },
+  "gradient_inputs_seed": 82631,
+  "baseline": {
+    "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates.pt",
+    "samples": [
+      {
+        "sample": 0,
+        "output_mse": 0.3332156703045853,
+        "gradient_l2_norm": 7006999091523.149,
+        "gradient_rms": 309668535836.4999,
+        "gradient_max_abs": 2710216089606.596,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 1,
+        "output_mse": 0.3437782520370282,
+        "gradient_l2_norm": 623034296399.9366,
+        "gradient_rms": 27534485993.51154,
+        "gradient_max_abs": 326704831871.1353,
+        "gradient_finite_fraction": 1.0
+      },
+      {
+        "sample": 2,
+        "output_mse": 0.3288927571977196,
+        "gradient_l2_norm": 23602886079694.71,
+        "gradient_rms": 1043110050157.8563,
+        "gradient_max_abs": 12131403114960.842,
+        "gradient_finite_fraction": 1.0
+      }
+    ],
+    "summary": {
+      "median_gradient_l2_norm": 7006999091523.149,
+      "gradient_l2_coefficient_of_variation": 0.9303009896442188,
+      "gradient_l2_max_min_ratio": 37.883766938800434,
+      "max_gradient_l2_norm": 23602886079694.71,
+      "median_output_mse": 0.3332156703045853,
+      "all_gradients_finite": true
+    }
+  },
+  "sweep": {
+    "0p004": {
+      "smoothness_weight": 0.004,
+      "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates_sweep_0p004.pt",
+      "gate_metrics": {
+        "xor_and": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.00295719890378946,
+          "selected_path_mse": 0.0019796920657984074,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.004
+        },
+        "xor3": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.007572709463208336,
+          "selected_path_mse": 0.004569349448953049,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.004
+        },
+        "choose": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.002787187206465384,
+          "selected_path_mse": 0.00048406711191619937,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.004
+        },
+        "majority": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.002002133406314532,
+          "selected_path_mse": 0.0012643303657836247,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.004
+        },
+        "prefix": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0008205780305932845,
+          "selected_path_mse": 7.483807841067443e-05,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.004
+        }
+      },
+      "gradient_samples": [
+        {
+          "sample": 0,
+          "output_mse": 0.3340085180512311,
+          "gradient_l2_norm": 0.41935423318477144,
+          "gradient_rms": 0.01853301387526479,
+          "gradient_max_abs": 0.27590229442919095,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 1,
+          "output_mse": 0.333872767029978,
+          "gradient_l2_norm": 0.015669899546232754,
+          "gradient_rms": 0.000692518264353324,
+          "gradient_max_abs": 0.006176606440550917,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 2,
+          "output_mse": 0.3324254842496162,
+          "gradient_l2_norm": 0.1796173956630189,
+          "gradient_rms": 0.00793804240577424,
+          "gradient_max_abs": 0.06018628780253632,
+          "gradient_finite_fraction": 1.0
+        }
+      ],
+      "gradient_summary": {
+        "median_gradient_l2_norm": 0.1796173956630189,
+        "gradient_l2_coefficient_of_variation": 0.8090997680388389,
+        "gradient_l2_max_min_ratio": 26.76176908138442,
+        "max_gradient_l2_norm": 0.41935423318477144,
+        "median_output_mse": 0.333872767029978,
+        "all_gradients_finite": true
+      },
+      "median_gradient_norm_ratio_to_baseline": 2.5633997281420297e-14
+    },
+    "0p005": {
+      "smoothness_weight": 0.005,
+      "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates_sweep_0p005.pt",
+      "gate_metrics": {
+        "xor_and": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.003194323364906489,
+          "selected_path_mse": 0.002138634225590288,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.005
+        },
+        "xor3": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.008718436700587053,
+          "selected_path_mse": 0.005243835075469444,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.005
+        },
+        "choose": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0031367748772770498,
+          "selected_path_mse": 0.000686465651519741,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.005
+        },
+        "majority": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0021777904802310227,
+          "selected_path_mse": 0.001448549023594127,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.005
+        },
+        "prefix": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0009293409654592465,
+          "selected_path_mse": 9.203415291914879e-05,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.005
+        }
+      },
+      "gradient_samples": [
+        {
+          "sample": 0,
+          "output_mse": 0.33577732415963485,
+          "gradient_l2_norm": 0.004868719491088288,
+          "gradient_rms": 0.00021516903549022783,
+          "gradient_max_abs": 0.0018678932708606484,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 1,
+          "output_mse": 0.33106988137754295,
+          "gradient_l2_norm": 0.032905952780486206,
+          "gradient_rms": 0.001454251397030383,
+          "gradient_max_abs": 0.014516979411310894,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 2,
+          "output_mse": 0.3281491895025723,
+          "gradient_l2_norm": 0.1962477936697054,
+          "gradient_rms": 0.008673009106046695,
+          "gradient_max_abs": 0.09077421122425695,
+          "gradient_finite_fraction": 1.0
+        }
+      ],
+      "gradient_summary": {
+        "median_gradient_l2_norm": 0.032905952780486206,
+        "gradient_l2_coefficient_of_variation": 1.0817984912835201,
+        "gradient_l2_max_min_ratio": 40.30788671003078,
+        "max_gradient_l2_norm": 0.1962477936697054,
+        "median_output_mse": 0.33106988137754295,
+        "all_gradients_finite": true
+      },
+      "median_gradient_norm_ratio_to_baseline": 4.696154851838758e-15
+    },
+    "0p006": {
+      "smoothness_weight": 0.006,
+      "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates_sweep_0p006.pt",
+      "gate_metrics": {
+        "xor_and": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0034006881560002494,
+          "selected_path_mse": 0.0023809298348403196,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.006
+        },
+        "xor3": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.009551608446584512,
+          "selected_path_mse": 0.006003375697905472,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.006
+        },
+        "choose": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.003462291888343732,
+          "selected_path_mse": 0.0009457120786748066,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.006
+        },
+        "majority": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0023626887307745086,
+          "selected_path_mse": 0.0016429462861714437,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.006
+        },
+        "prefix": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0010294281798580779,
+          "selected_path_mse": 0.00010633707454280079,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.006
+        }
+      },
+      "gradient_samples": [
+        {
+          "sample": 0,
+          "output_mse": 0.3276849398864232,
+          "gradient_l2_norm": 0.01713018279814092,
+          "gradient_rms": 0.000757054276220662,
+          "gradient_max_abs": 0.008905459482233782,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 1,
+          "output_mse": 0.32670578356176805,
+          "gradient_l2_norm": 0.27081420723184846,
+          "gradient_rms": 0.01196841014845619,
+          "gradient_max_abs": 0.13189004688956207,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 2,
+          "output_mse": 0.32846136973913226,
+          "gradient_l2_norm": 0.0007453676451443463,
+          "gradient_rms": 3.294090727241347e-05,
+          "gradient_max_abs": 0.00022532569026116454,
+          "gradient_finite_fraction": 1.0
+        }
+      ],
+      "gradient_summary": {
+        "median_gradient_l2_norm": 0.01713018279814092,
+        "gradient_l2_coefficient_of_variation": 1.284744125671874,
+        "gradient_l2_max_min_ratio": 363.3297058116913,
+        "max_gradient_l2_norm": 0.27081420723184846,
+        "median_output_mse": 0.3276849398864232,
+        "all_gradients_finite": true
+      },
+      "median_gradient_norm_ratio_to_baseline": 2.444724563881346e-15
+    },
+    "0p007": {
+      "smoothness_weight": 0.007,
+      "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates_sweep_0p007.pt",
+      "gate_metrics": {
+        "xor_and": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0035694015539560514,
+          "selected_path_mse": 0.002600210466651111,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.007
+        },
+        "xor3": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.010458126573201748,
+          "selected_path_mse": 0.00685843173963808,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.007
+        },
+        "choose": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0037256822068877614,
+          "selected_path_mse": 0.0011016977838478343,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.007
+        },
+        "majority": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0025301654452070726,
+          "selected_path_mse": 0.0018339417530023087,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.007
+        },
+        "prefix": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0011254979936183923,
+          "selected_path_mse": 0.00011016717191851289,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.007
+        }
+      },
+      "gradient_samples": [
+        {
+          "sample": 0,
+          "output_mse": 0.32701958696148375,
+          "gradient_l2_norm": 0.005052954925858437,
+          "gradient_rms": 0.00022331116831902936,
+          "gradient_max_abs": 0.0023865719301838294,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 1,
+          "output_mse": 0.32715859251106116,
+          "gradient_l2_norm": 0.0010091014356857558,
+          "gradient_rms": 4.459640425490492e-05,
+          "gradient_max_abs": 0.0006519860958796806,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 2,
+          "output_mse": 0.32736288098452493,
+          "gradient_l2_norm": 8.422722245214563e-05,
+          "gradient_rms": 3.72235250977625e-06,
+          "gradient_max_abs": 5.4166926800236114e-05,
+          "gradient_finite_fraction": 1.0
+        }
+      ],
+      "gradient_summary": {
+        "median_gradient_l2_norm": 0.0010091014356857558,
+        "gradient_l2_coefficient_of_variation": 1.053114883812458,
+        "gradient_l2_max_min_ratio": 59.99194534438451,
+        "max_gradient_l2_norm": 0.005052954925858437,
+        "median_output_mse": 0.32715859251106116,
+        "all_gradients_finite": true
+      },
+      "median_gradient_norm_ratio_to_baseline": 1.4401335329221542e-16
+    },
+    "0p008": {
+      "smoothness_weight": 0.008,
+      "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates_sweep_0p008.pt",
+      "gate_metrics": {
+        "xor_and": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.003720432793667877,
+          "selected_path_mse": 0.0028095895328406188,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.008
+        },
+        "xor3": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.011252666625154995,
+          "selected_path_mse": 0.007588020229845188,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.008
+        },
+        "choose": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.004171840348074995,
+          "selected_path_mse": 0.0011055942434501148,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.008
+        },
+        "majority": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0027089401676162533,
+          "selected_path_mse": 0.002030402781413012,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.008
+        },
+        "prefix": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0012157326154745188,
+          "selected_path_mse": 0.00011474161496028679,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.008
+        }
+      },
+      "gradient_samples": [
+        {
+          "sample": 0,
+          "output_mse": 0.32583994329020183,
+          "gradient_l2_norm": 0.0003277064984790262,
+          "gradient_rms": 1.4482717957088657e-05,
+          "gradient_max_abs": 0.00016632144314112528,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 1,
+          "output_mse": 0.3258523195260519,
+          "gradient_l2_norm": 7.304368791143612e-05,
+          "gradient_rms": 3.2281054403156454e-06,
+          "gradient_max_abs": 2.9995239670787597e-05,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 2,
+          "output_mse": 0.3258962314427096,
+          "gradient_l2_norm": 0.00010021183668958641,
+          "gradient_rms": 4.4287793298978386e-06,
+          "gradient_max_abs": 6.373613187219932e-05,
+          "gradient_finite_fraction": 1.0
+        }
+      ],
+      "gradient_summary": {
+        "median_gradient_l2_norm": 0.00010021183668958641,
+        "gradient_l2_coefficient_of_variation": 0.683797694444552,
+        "gradient_l2_max_min_ratio": 4.48644513782441,
+        "max_gradient_l2_norm": 0.0003277064984790262,
+        "median_output_mse": 0.3258523195260519,
+        "all_gradients_finite": true
+      },
+      "median_gradient_norm_ratio_to_baseline": 1.4301676849197768e-17
+    },
+    "0p009": {
+      "smoothness_weight": 0.009,
+      "checkpoint": "/home/mechu/sha256_travel/astra_nn/smooth_nn/smooth_gates_sweep_0p009.pt",
+      "gate_metrics": {
+        "xor_and": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0038572433805323133,
+          "selected_path_mse": 0.0030063452632591394,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.009
+        },
+        "xor3": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.011933692366230196,
+          "selected_path_mse": 0.008265380435166886,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.009
+        },
+        "choose": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0043819403009686545,
+          "selected_path_mse": 0.0012907467152992768,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.009
+        },
+        "majority": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.002888783037338034,
+          "selected_path_mse": 0.002226862547837583,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.009
+        },
+        "prefix": {
+          "binary_vertex_max_error": 0.0,
+          "fractional_random_mse": 0.0013263832277805418,
+          "selected_path_mse": 0.00012407372893637138,
+          "steps": 1000,
+          "width": 128,
+          "depth": 3,
+          "smoothness_weight": 0.009
+        }
+      },
+      "gradient_samples": [
+        {
+          "sample": 0,
+          "output_mse": 0.32422255762609714,
+          "gradient_l2_norm": 6.0402093508332725e-05,
+          "gradient_rms": 2.6694206198503755e-06,
+          "gradient_max_abs": 2.87901286627082e-05,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 1,
+          "output_mse": 0.32422276700863045,
+          "gradient_l2_norm": 2.9881839078977653e-05,
+          "gradient_rms": 1.320603190441892e-06,
+          "gradient_max_abs": 1.0674668193456119e-05,
+          "gradient_finite_fraction": 1.0
+        },
+        {
+          "sample": 2,
+          "output_mse": 0.3242316911996653,
+          "gradient_l2_norm": 5.204907806289056e-05,
+          "gradient_rms": 2.300266003298618e-06,
+          "gradient_max_abs": 3.761467294722722e-05,
+          "gradient_finite_fraction": 1.0
+        }
+      ],
+      "gradient_summary": {
+        "median_gradient_l2_norm": 5.204907806289056e-05,
+        "gradient_l2_coefficient_of_variation": 0.27143926490667075,
+        "gradient_l2_max_min_ratio": 2.0213646606117543,
+        "max_gradient_l2_norm": 6.0402093508332725e-05,
+        "median_output_mse": 0.32422276700863045,
+        "all_gradients_finite": true
+      },
+      "median_gradient_norm_ratio_to_baseline": 7.428155389067757e-18
+    }
+  }
+}
