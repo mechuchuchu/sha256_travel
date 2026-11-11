@@ -1,0 +1,46 @@
+{
+  "source": "/home/mechu/sha256_travel/astra_nn/smooth_nn/meta_experiment/original_0p009.pt",
+  "source_sha256": "c7b297697fba36d4bf12eb4b9a5207eb3766766899775bcc006d2b35d3bd8b79",
+  "output": "smooth_nn/meta_experiment/pilot.pt",
+  "target_mse": 0.23,
+  "seed": 53291,
+  "learning_rate": 1e-05,
+  "smoothness_weight": 0.0001,
+  "binary_weight": 0.001,
+  "meta_weight": 0.0001,
+  "target_gradient_norm": 0.001,
+  "epsilon": 0.001,
+  "gradient_definition": "central finite difference in random signs on differing input bits",
+  "validation_seed_start": 63291,
+  "before": {
+    "midpoint_mse": [
+      0.34392025528063164
+    ],
+    "mean_midpoint_mse": 0.34392025528063164,
+    "all_binary_hashes_match": true,
+    "binary_cases": 2
+  },
+  "after": {
+    "midpoint_mse": [
+      0.34377602558739767
+    ],
+    "mean_midpoint_mse": 0.34377602558739767,
+    "all_binary_hashes_match": true,
+    "binary_cases": 2
+  },
+  "history": [
+    {
+      "step": 1,
+      "start_message": "617a0ce8749289ce4e8edcc7eb6460a3384d23e112394aee76b14609cd1545efa2f1fcee8d73a166e0f05226a05186dd3e648dab85cac6dac7ab54403e8eeb84",
+      "end_message": "17de54d7e910a4269e952d276eaff7794b00bcd358505ce1790438be0e821499618539c9d615167827f052e7124bebcc1351d27134466a336c8e3bb52b6c1387",
+      "midpoint_mse": 0.3293154678346756,
+      "mse_objective": 0.009863562151220478,
+      "estimated_directional_gradient": 8.137342077940701e-06,
+      "meta_loss": 9.83791532178993e-07,
+      "active_bits": 261,
+      "gate_binary_loss": 7.017703787422425,
+      "gate_curvature_loss": 4.584270826063881,
+      "parameter_gradient_norm": 0.07979186229928699
+    }
+  ]
+}

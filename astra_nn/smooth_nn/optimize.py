@@ -111,7 +111,9 @@ def main() -> None:
         initial = torch.rand(512, device=device, dtype=dtype)
     else:
         initial = bytes_to_bits(initial_message).to(device=device, dtype=dtype)
-    x = torch.nn.Parameter(initial.unsqueeze(0))
+    # Keep an independent snapshot: Parameter(initial.unsqueeze(...)) would
+    # share storage with initial and make the measured displacement stay zero.
+    x = torch.nn.Parameter(initial.unsqueeze(0).clone())
     optimizer = torch.optim.Adam([x], lr=args.lr)
 
     report_every = 1
@@ -132,6 +134,7 @@ def main() -> None:
         loss = output_loss + args.binary_weight * binary_loss
         loss.backward()
         grad_norm = x.grad.norm().item()
+        delta_from_init = torch.linalg.vector_norm(x.detach()[0] - initial).item()
         if output_loss.item() < best_mse:
             best_mse = output_loss.item()
             best_input.copy_(x.detach())
@@ -148,11 +151,13 @@ def main() -> None:
                 "output_mse": output_loss.item(),
                 "binary_penalty": binary_loss.item(),
                 "gradient_norm": grad_norm,
+                "delta_from_init": delta_from_init,
             }
             history.append(row)
             print(
                 f"step {step:4d}/{args.steps}: mse={output_loss.item():.6e} "
-                f"binary={binary_loss.item():.6e} |grad|={grad_norm:.6e}",
+                f"binary={binary_loss.item():.6e} |grad|={grad_norm:.6e} "
+                f"delta_from_init={delta_from_init:.6e}",
                 flush=True,
             )
 
@@ -174,10 +179,12 @@ def main() -> None:
         hashlib_digest = hashlib.sha256(candidate_message).digest()
         candidate_hash_matches_target = hashlib_digest == target_digest
         binary_fraction = ((x[0] < 0.1) | (x[0] > 0.9)).double().mean().item()
+        delta_from_init = torch.linalg.vector_norm(x[0] - initial).item()
 
     print(f"final relaxed-output MSE: {soft_mse:.8e}")
     print(f"relaxed output threshold accuracy: {soft_match:.2%}")
     print(f"input values within 0.1 of a bit: {binary_fraction:.2%}")
+    print(f"delta_from_init (L2): {delta_from_init:.8e}")
     print(f"rounded candidate message: {candidate_message.hex()}")
     print(f"rounded candidate SHA-256: {hashlib_digest.hex()}")
     print(f"candidate matches target: {candidate_hash_matches_target}")
@@ -196,12 +203,14 @@ def main() -> None:
             "final_output_mse": soft_mse,
             "relaxed_output_threshold_accuracy": soft_match,
             "input_near_binary_fraction": binary_fraction,
+            "delta_from_init": delta_from_init,
             "candidate_message": candidate_message.hex(),
             "candidate_model_digest": candidate_digest.hex(),
             "candidate_sha256": hashlib_digest.hex(),
             "candidate_matches_target": candidate_hash_matches_target,
             "candidate_model_matches_target": candidate_matches_target,
             "continuous_input": x[0].tolist(),
+            "initial_input": initial.tolist(),
             "history": history,
         }
         args.output.parent.mkdir(parents=True, exist_ok=True)

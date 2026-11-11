@@ -45,6 +45,19 @@ For fractional inputs, each gate uses its smooth surrogate.
 
 ## Optimize a message toward a target digest
 
+To plot the loss along a linear interpolation between two 64-byte messages:
+
+```bash
+uv run python -m smooth_nn.plot_input_interpolation
+```
+
+By default, the start is `bytes(range(64))`, the end is a seeded random
+message, and the target is the start message's SHA-256 digest. The command
+uses the `0.009` checkpoint and saves a PNG and the sampled data as JSON.
+Use `--start-hex`, `--end-hex`, and `--target-hex` to choose different
+messages or a target digest; `--samples` controls the number of points.
+Intermediate inputs are fractional and their outputs are not SHA-256 digests.
+
 `optimize.py` uses Adam on 512 continuous input values in `[0, 1]` and
 minimizes output-bit MSE against a target digest. A small binarization penalty
 encourages values toward 0 or 1. By default, the target is the SHA-256 digest
@@ -59,6 +72,11 @@ uv run python -m smooth_nn.optimize --target-hex YOUR_64_HEX_DIGIT_DIGEST --step
 The script also rounds the final input at 0.5 and checks its ordinary SHA-256
 digest. A low loss for the relaxed smooth model does not imply that this
 rounded message has the target digest.
+
+`delta_from_init` is the L2 distance between the current 512-dimensional
+continuous input and its initial value. Step reports measure the input before
+that step's update, matching the reported MSE. The final value measures the
+best-MSE input selected by the script. JSON output includes both input vectors.
 
 For an L-BFGS experiment on the `0.009` checkpoint, run:
 
