@@ -7,6 +7,7 @@ PyTorch 모델입니다. 입력이 정확히 `0` 또는 `1`이면 결과도 정�
 | 파일 | 내용 |
 | --- | --- |
 | `sha256_nn.py` | 모델 구조, 가중치 생성·저장·불러오기, 비트 변환 함수 |
+| `smooth_nn/` | 학습된 tanh 게이트로 구성한 별도 SHA-256 모델과 비교 그림 |
 | `sha256_512_256.pt` | 원본 64바이트 메시지용 체크포인트. 패딩 포함 두 블록 처리 |
 | `sha256_compression_512_256.pt` | 이미 준비된 512비트 블록용 체크포인트. 표준 IV로 한 블록 처리 |
 | `sha256_weights.json` | 모든 게이트 가중치·편향과 상수를 읽을 수 있는 JSON |
@@ -239,3 +240,19 @@ JSON의 숫자는 십진 표기 그대로 읽고, 결과의 수치 배열은 충
 gradient는 이 ReLU 확장 회로에 대한 값이며, 이진화 후의 해시 일치를 보장하지
 않습니다. 비교 테스트는 게이트의 ReLU 경계, 덧셈의 수치 미분, 두 모드의
 `hashlib` 대조, 소수 입력의 전체 PyTorch 순전파·역전파 대조를 포함합니다.
+
+## 논리 게이트 보간 그림
+
+`plot_gate_interpolations.py`는 각 게이트의 두 이진 입력 벡터 사이를
+`x(t) = (1-t)x₀ + tx₁`로 움직이며, fractional ReLU 회로의 실제 출력과
+양 끝점 출력을 잇는 직선을 함께 그립니다. 기본 계산 정밀도는 IEEE binary256의
+유효숫자에 해당하는 237비트입니다. 그림을 만들려면 matplotlib이 필요합니다.
+
+```bash
+uv run python plot_gate_interpolations.py --output gate_interpolation_237.png
+```
+
+XOR와 AND에는 `(0,0) → (1,1)`, XOR3·Choose·Majority에는
+`(0,0,0) → (1,1,1)` 경로를 사용합니다. Prefix의 generate와 propagate 출력은
+각각 유효한 두 입력 구간 쌍을 따라 보간합니다. 선택한 경로에 따라 같은 게이트의
+fractional 곡선은 달라질 수 있습니다.
